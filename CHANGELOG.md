@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/SpeedySpec/speedyspec-cli-contracts/compare/v1.0.1...v1.1.0) (2026-11-18)
+
+
+### Features
+
+* keep the database password out of stack traces and debug output ([#4](https://github.com/SpeedySpec/speedyspec-cli-contracts/issues/4)) ([2b956a3](https://github.com/SpeedySpec/speedyspec-cli-contracts/commit/2b956a39cc6fd41c97f20429aa39792996d144e3))
+
 ## [1.0.1](https://github.com/SpeedySpec/speedyspec-cli-contracts/compare/v1.0.0...v1.0.1) (2026-11-18)
 
 
