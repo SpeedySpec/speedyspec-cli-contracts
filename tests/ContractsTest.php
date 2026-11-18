@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 use SpeedySpec\Cli\Contracts\App;
+use SpeedySpec\Cli\Contracts\AppRuntime;
+use SpeedySpec\Cli\Contracts\AppTask;
+use SpeedySpec\Cli\Contracts\DatabaseConnection;
+use SpeedySpec\Cli\Contracts\Install;
 use SpeedySpec\Cli\Contracts\AppPart;
 use SpeedySpec\Cli\Contracts\Command;
 use SpeedySpec\Cli\Contracts\CommandArgument;
@@ -44,6 +48,10 @@ it('is readonly', function (string $class, array $args, string $property) {
     'ZipSource' => [ZipSource::class, ['https://example.com/a.zip', 'site'], 'url'],
     'WaitFor' => [WaitFor::class, ['deployment', 'web'], 'kind'],
     'KubernetesResources' => [KubernetesResources::class, [[]], 'resources'],
+    'Install' => [Install::class, ['blog', 'wordpress', [], 'zip', '/srv/blog'], 'name'],
+    'AppRuntime' => [AppRuntime::class, [], 'entry'],
+    'DatabaseConnection' => [DatabaseConnection::class, ['db', 'blog', 'blog', 'secret'], 'host'],
+    'AppTask' => [AppTask::class, ['/srv/task.php'], 'file'],
 ]);
 
 it('is final and has no parent or interface', function (string $class) {
@@ -62,4 +70,36 @@ it('is final and has no parent or interface', function (string $class) {
     ZipSource::class,
     WaitFor::class,
     KubernetesResources::class,
+    Install::class,
+    AppRuntime::class,
+    DatabaseConnection::class,
+    AppTask::class,
 ]);
+
+it('defaults an app runtime to nothing to load and nothing to set', function () {
+    $runtime = new AppRuntime();
+    expect($runtime->entry)->toBeNull()
+        ->and($runtime->ini)->toBe([])
+        ->and($runtime->server)->toBe([]);
+});
+
+it('defaults the optional database fields to a MySQL server on its usual port', function () {
+    $db = new DatabaseConnection('db', 'blog', 'blog', 'secret');
+    expect($db->port)->toBe(3306)
+        ->and($db->socket)->toBeNull()
+        ->and($db->tablePrefix)->toBe('')
+        ->and($db->charset)->toBe('utf8mb4')
+        ->and($db->engine)->toBe('mysql');
+});
+
+it('defaults a task to loading the app with ten minutes to finish', function () {
+    $task = new AppTask('/srv/task.php');
+    expect($task->input)->toBe([])
+        ->and($task->loadsApp)->toBeTrue()
+        ->and($task->timeoutSeconds)->toBe(600);
+});
+
+it('holds an install with no local root', function () {
+    $install = new Install('shop', 'wordpress', ['site'], 'kubernetes', null);
+    expect($install->root)->toBeNull()->and($install->parts)->toBe(['site']);
+});
