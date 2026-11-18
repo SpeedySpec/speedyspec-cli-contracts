@@ -103,3 +103,29 @@ it('holds an install with no local root', function () {
     $install = new Install('shop', 'wordpress', ['site'], 'kubernetes', null);
     expect($install->root)->toBeNull()->and($install->parts)->toBe(['site']);
 });
+
+it('marks the database password as sensitive, so stack traces leave it out', function () {
+    $password = (new ReflectionMethod(DatabaseConnection::class, '__construct'))->getParameters()[3];
+    expect($password->getName())->toBe('password')
+        ->and($password->getAttributes(SensitiveParameter::class))->toHaveCount(1);
+});
+
+it('leaves the database password out of debug output', function (string $dump) {
+    $db = new DatabaseConnection('db', 'blog', 'blog', 'hunter2-secret');
+    if ($dump === 'var_dump')
+    {
+        ob_start();
+        var_dump($db);
+        $output = (string) ob_get_clean();
+    }
+    else
+    {
+        $output = print_r($db, true);
+    }
+    expect($output)->not->toContain('hunter2-secret')
+        ->and($output)->toContain('blog');
+})->with(['var_dump', 'print_r']);
+
+it('still gives the CLI the password itself', function () {
+    expect((new DatabaseConnection('db', 'blog', 'blog', 'hunter2-secret'))->password)->toBe('hunter2-secret');
+});
