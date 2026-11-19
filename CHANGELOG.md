@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/SpeedySpec/speedyspec-cli-contracts/compare/v1.1.0...v1.2.0) (2026-11-19)
+
+
+### Features
+
+* add the setup plan and extension contracts ([#6](https://github.com/SpeedySpec/speedyspec-cli-contracts/issues/6)) ([dcf462f](https://github.com/SpeedySpec/speedyspec-cli-contracts/commit/dcf462fed1a746ca240924be8721d5c475ba74f4))
+
 ## [1.1.0](https://github.com/SpeedySpec/speedyspec-cli-contracts/compare/v1.0.1...v1.1.0) (2026-11-18)
 
 
