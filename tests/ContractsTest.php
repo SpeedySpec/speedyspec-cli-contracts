@@ -204,3 +204,9 @@ it('holds where the site URL is and which columns hold prefixed keys', function 
         ->and($spec->prefixedColumns)->toBe($columns)
         ->and($spec->appVersion)->toBe('7.1.5');
 });
+
+it('renames every prefixed value unless the keys are named', function ()
+{
+    expect((new PrefixedColumn('usermeta', 'meta_key'))->keys)->toBeNull()
+        ->and((new PrefixedColumn('options', 'option_name', ['user_roles']))->keys)->toBe(['user_roles']);
+});
