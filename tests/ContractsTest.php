@@ -22,6 +22,7 @@ use SpeedySpec\Cli\Contracts\KubernetesResources;
 use SpeedySpec\Cli\Contracts\PrefixedColumn;
 use SpeedySpec\Cli\Contracts\SetupPlan;
 use SpeedySpec\Cli\Contracts\SiteUrl;
+use SpeedySpec\Cli\Contracts\TableColumn;
 use SpeedySpec\Cli\Contracts\WaitFor;
 use SpeedySpec\Cli\Contracts\ZipSource;
 
@@ -98,6 +99,7 @@ it('is final and has no parent or interface', function (string $class) {
     BackupSpec::class,
     SiteUrl::class,
     PrefixedColumn::class,
+    TableColumn::class,
 ]);
 
 it('defaults an app runtime to nothing to load and nothing to set', function () {
@@ -209,4 +211,12 @@ it('renames every prefixed value unless the keys are named', function ()
 {
     expect((new PrefixedColumn('usermeta', 'meta_key'))->keys)->toBeNull()
         ->and((new PrefixedColumn('options', 'option_name', ['user_roles']))->keys)->toBe(['user_roles']);
+});
+
+it('names columns whose values keep the old URL on a move', function ()
+{
+    $guid = new TableColumn('posts', 'guid');
+    expect((new BackupSpec())->keepUrls)->toBe([])
+        ->and((new BackupSpec(keepUrls: [$guid]))->keepUrls)->toBe([$guid])
+        ->and($guid->column)->toBe('guid');
 });
