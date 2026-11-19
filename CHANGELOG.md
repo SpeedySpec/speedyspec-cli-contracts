@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/SpeedySpec/speedyspec-cli-contracts/compare/v1.3.0...v1.4.0) (2026-11-19)
+
+
+### Features
+
+* let a backup name the columns that keep the old URL on a move ([#10](https://github.com/SpeedySpec/speedyspec-cli-contracts/issues/10)) ([85c31dc](https://github.com/SpeedySpec/speedyspec-cli-contracts/commit/85c31dcfc5f4add0ebbb39a81b834dec8611a15a))
+
 ## [1.3.0](https://github.com/SpeedySpec/speedyspec-cli-contracts/compare/v1.2.0...v1.3.0) (2026-11-19)
 
 
