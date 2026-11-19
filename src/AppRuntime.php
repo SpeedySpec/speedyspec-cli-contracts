@@ -14,6 +14,10 @@ namespace SpeedySpec\Cli\Contracts;
  *   The php.ini settings for the process.
  * @param array<string, string> $server
  *   The entries set in `$_SERVER` before the entry file loads.
+ * @param ?Workload $workload
+ *   The workload that serves a Kubernetes install; null on other drivers.
+ * @param ?MaintenanceFile $maintenance
+ *   The file that puts the app in maintenance while its files are swapped; null for none.
  */
 final readonly class AppRuntime
 {
@@ -21,6 +25,8 @@ final readonly class AppRuntime
         public ?string $entry = null,
         public array $ini = [],
         public array $server = [],
+        public ?Workload $workload = null,
+        public ?MaintenanceFile $maintenance = null,
     ) {
     }
 }

@@ -22,3 +22,8 @@ table prefix). The CLI backs up, restores and moves sites itself from that descr
 
 Since 1.4.0, a `BackupSpec` can list `TableColumn`s in `keepUrls`: columns whose values keep the old site URL when a
 restore moves a site (WordPress's post GUIDs).
+
+Since 1.5.0, an `AppRuntime` can name the `Workload` that serves a Kubernetes install (its kind, name, the install
+root inside the container and, when there are several, the app container) and a `MaintenanceFile` the CLI writes while
+it swaps plugins, themes or a restored copy. A `DatabaseConnection` can ask for TLS: `tls` is `off`, `required` or
+`verify`, with `caFile` for `verify`.
