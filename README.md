@@ -19,3 +19,6 @@ closure returns an `ExtensionArchive`: `fn(string $kind, string $slug, ?string $
 Since 1.3.0, an app's plugin describes backups with a `BackupSpec`: the paths to include, exclude and keep from the
 target on restore, a `SiteUrl` (the row holding the site's URL) and `PrefixedColumn`s (columns whose values carry the
 table prefix). The CLI backs up, restores and moves sites itself from that description.
+
+Since 1.4.0, a `BackupSpec` can list `TableColumn`s in `keepUrls`: columns whose values keep the old site URL when a
+restore moves a site (WordPress's post GUIDs).

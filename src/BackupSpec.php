@@ -20,6 +20,9 @@ namespace SpeedySpec\Cli\Contracts;
  *   Paths a restore keeps from the target.
  * @param list<PrefixedColumn> $prefixedColumns
  *   Columns whose values start with the table prefix and are renamed with it.
+ * @param list<TableColumn> $keepUrls
+ *   Columns whose values keep the old site URL when a restore moves the site, such as identifiers that only look like
+ *   links.
  */
 final readonly class BackupSpec
 {
@@ -30,6 +33,7 @@ final readonly class BackupSpec
         public ?SiteUrl $siteUrl = null,
         public array $prefixedColumns = [],
         public ?string $appVersion = null,
+        public array $keepUrls = [],
     ) {
     }
 }
