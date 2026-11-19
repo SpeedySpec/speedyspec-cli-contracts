@@ -15,3 +15,7 @@ Since 1.2.0, an app's plugin can finish an install with a `SetupPlan` (tasks run
 describe its plugins and themes with an `ExtensionLayout` (where they live, and an `inspect` closure that turns a file
 or directory into an `Extension`). Source plugins offer plugins and themes as `ExtensionSource`s, whose `resolve`
 closure returns an `ExtensionArchive`: `fn(string $kind, string $slug, ?string $version): ?ExtensionArchive`.
+
+Since 1.3.0, an app's plugin describes backups with a `BackupSpec`: the paths to include, exclude and keep from the
+target on restore, a `SiteUrl` (the row holding the site's URL) and `PrefixedColumn`s (columns whose values carry the
+table prefix). The CLI backs up, restores and moves sites itself from that description.

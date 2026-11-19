@@ -5,6 +5,7 @@ declare(strict_types=1);
 use SpeedySpec\Cli\Contracts\App;
 use SpeedySpec\Cli\Contracts\AppRuntime;
 use SpeedySpec\Cli\Contracts\AppTask;
+use SpeedySpec\Cli\Contracts\BackupSpec;
 use SpeedySpec\Cli\Contracts\DatabaseConnection;
 use SpeedySpec\Cli\Contracts\Extension;
 use SpeedySpec\Cli\Contracts\ExtensionArchive;
@@ -18,7 +19,9 @@ use SpeedySpec\Cli\Contracts\CommandOption;
 use SpeedySpec\Cli\Contracts\InstallOption;
 use SpeedySpec\Cli\Contracts\InstallRequest;
 use SpeedySpec\Cli\Contracts\KubernetesResources;
+use SpeedySpec\Cli\Contracts\PrefixedColumn;
 use SpeedySpec\Cli\Contracts\SetupPlan;
+use SpeedySpec\Cli\Contracts\SiteUrl;
 use SpeedySpec\Cli\Contracts\WaitFor;
 use SpeedySpec\Cli\Contracts\ZipSource;
 
@@ -62,6 +65,9 @@ it('is readonly', function (string $class, array $args, string $property) {
     'Extension' => [Extension::class, ['plugin', 'akismet', 'Akismet'], 'slug'],
     'ExtensionSource' => [ExtensionSource::class, ['wordpress.org', fn (string $k, string $s, ?string $v): ?ExtensionArchive => null], 'name'],
     'ExtensionArchive' => [ExtensionArchive::class, ['plugin', 'akismet', '5.3', 'https://example.com/a.zip'], 'url'],
+    'BackupSpec' => [BackupSpec::class, [], 'include'],
+    'SiteUrl' => [SiteUrl::class, ['options', 'option_name', 'siteurl', 'option_value'], 'table'],
+    'PrefixedColumn' => [PrefixedColumn::class, ['usermeta', 'meta_key'], 'column'],
 ]);
 
 it('is final and has no parent or interface', function (string $class) {
@@ -89,6 +95,9 @@ it('is final and has no parent or interface', function (string $class) {
     Extension::class,
     ExtensionSource::class,
     ExtensionArchive::class,
+    BackupSpec::class,
+    SiteUrl::class,
+    PrefixedColumn::class,
 ]);
 
 it('defaults an app runtime to nothing to load and nothing to set', function () {
@@ -172,4 +181,32 @@ it('keeps a source\'s name and resolve closure', function () {
     $source = new ExtensionSource('wordpress.org', $resolve);
     expect($source->name)->toBe('wordpress.org')
         ->and(($source->resolve)('plugin', 'akismet', null)->version)->toBe('1.0');
+});
+
+it('defaults a backup to the whole install with nothing excluded or preserved', function ()
+{
+    $spec = new BackupSpec();
+    expect($spec->include)->toBe(['.'])
+        ->and($spec->exclude)->toBe([])
+        ->and($spec->preserve)->toBe([])
+        ->and($spec->siteUrl)->toBeNull()
+        ->and($spec->prefixedColumns)->toBe([])
+        ->and($spec->appVersion)->toBeNull();
+});
+
+it('holds where the site URL is and which columns hold prefixed keys', function ()
+{
+    $url = new SiteUrl('options', 'option_name', 'siteurl', 'option_value');
+    $columns = [new PrefixedColumn('options', 'option_name'), new PrefixedColumn('usermeta', 'meta_key')];
+    $spec = new BackupSpec(['.'], ['wp-content/cache'], ['wp-config.php'], $url, $columns, '7.1.5');
+    expect($spec->siteUrl)->toBe($url)
+        ->and($spec->siteUrl->key)->toBe('siteurl')
+        ->and($spec->prefixedColumns)->toBe($columns)
+        ->and($spec->appVersion)->toBe('7.1.5');
+});
+
+it('renames every prefixed value unless the keys are named', function ()
+{
+    expect((new PrefixedColumn('usermeta', 'meta_key'))->keys)->toBeNull()
+        ->and((new PrefixedColumn('options', 'option_name', ['user_roles']))->keys)->toBe(['user_roles']);
 });
