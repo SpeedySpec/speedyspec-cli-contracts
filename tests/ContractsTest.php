@@ -6,6 +6,10 @@ use SpeedySpec\Cli\Contracts\App;
 use SpeedySpec\Cli\Contracts\AppRuntime;
 use SpeedySpec\Cli\Contracts\AppTask;
 use SpeedySpec\Cli\Contracts\DatabaseConnection;
+use SpeedySpec\Cli\Contracts\Extension;
+use SpeedySpec\Cli\Contracts\ExtensionArchive;
+use SpeedySpec\Cli\Contracts\ExtensionLayout;
+use SpeedySpec\Cli\Contracts\ExtensionSource;
 use SpeedySpec\Cli\Contracts\Install;
 use SpeedySpec\Cli\Contracts\AppPart;
 use SpeedySpec\Cli\Contracts\Command;
@@ -14,6 +18,7 @@ use SpeedySpec\Cli\Contracts\CommandOption;
 use SpeedySpec\Cli\Contracts\InstallOption;
 use SpeedySpec\Cli\Contracts\InstallRequest;
 use SpeedySpec\Cli\Contracts\KubernetesResources;
+use SpeedySpec\Cli\Contracts\SetupPlan;
 use SpeedySpec\Cli\Contracts\WaitFor;
 use SpeedySpec\Cli\Contracts\ZipSource;
 
@@ -52,6 +57,11 @@ it('is readonly', function (string $class, array $args, string $property) {
     'AppRuntime' => [AppRuntime::class, [], 'entry'],
     'DatabaseConnection' => [DatabaseConnection::class, ['db', 'blog', 'blog', 'secret'], 'host'],
     'AppTask' => [AppTask::class, ['/srv/task.php'], 'file'],
+    'SetupPlan' => [SetupPlan::class, [[]], 'tasks'],
+    'ExtensionLayout' => [ExtensionLayout::class, [['plugin' => 'p'], fn (string $k, string $p): ?Extension => null], 'directories'],
+    'Extension' => [Extension::class, ['plugin', 'akismet', 'Akismet'], 'slug'],
+    'ExtensionSource' => [ExtensionSource::class, ['wordpress.org', fn (string $k, string $s, ?string $v): ?ExtensionArchive => null], 'name'],
+    'ExtensionArchive' => [ExtensionArchive::class, ['plugin', 'akismet', '5.3', 'https://example.com/a.zip'], 'url'],
 ]);
 
 it('is final and has no parent or interface', function (string $class) {
@@ -74,6 +84,11 @@ it('is final and has no parent or interface', function (string $class) {
     AppRuntime::class,
     DatabaseConnection::class,
     AppTask::class,
+    SetupPlan::class,
+    ExtensionLayout::class,
+    Extension::class,
+    ExtensionSource::class,
+    ExtensionArchive::class,
 ]);
 
 it('defaults an app runtime to nothing to load and nothing to set', function () {
@@ -128,4 +143,33 @@ it('leaves the database password out of debug output', function (string $dump) {
 
 it('still gives the CLI the password itself', function () {
     expect((new DatabaseConnection('db', 'blog', 'blog', 'hunter2-secret'))->password)->toBe('hunter2-secret');
+});
+
+it('holds a setup plan\'s tasks in order', function () {
+    $tasks = [new AppTask('/srv/a.php'), new AppTask('/srv/b.php')];
+    expect((new SetupPlan($tasks))->tasks)->toBe($tasks);
+});
+
+it('defaults an extension to no known version', function () {
+    $extension = new Extension('theme', 'twentytwentyfive', 'Twenty Twenty-Five');
+    expect($extension->version)->toBeNull()->and($extension->kind)->toBe('theme');
+});
+
+it('defaults an extension archive to no checksum', function () {
+    expect((new ExtensionArchive('plugin', 'akismet', '5.3', 'https://example.com/a.zip'))->sha256)->toBeNull();
+});
+
+it('keeps the layout\'s directories and inspect closure', function () {
+    $inspect = fn (string $kind, string $path): ?Extension => new Extension($kind, basename($path), 'Name');
+    $layout = new ExtensionLayout(['plugin' => 'wp-content/plugins', 'theme' => 'wp-content/themes'], $inspect);
+    expect($layout->directories)->toBe(['plugin' => 'wp-content/plugins', 'theme' => 'wp-content/themes'])
+        ->and(($layout->inspect)('plugin', '/srv/p/akismet')->slug)->toBe('akismet');
+});
+
+it('keeps a source\'s name and resolve closure', function () {
+    $resolve = fn (string $kind, string $slug, ?string $version): ?ExtensionArchive
+        => new ExtensionArchive($kind, $slug, $version ?? '1.0', 'https://example.com/' . $slug . '.zip');
+    $source = new ExtensionSource('wordpress.org', $resolve);
+    expect($source->name)->toBe('wordpress.org')
+        ->and(($source->resolve)('plugin', 'akismet', null)->version)->toBe('1.0');
 });
