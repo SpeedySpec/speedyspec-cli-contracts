@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/SpeedySpec/speedyspec-cli-contracts/compare/v1.2.0...v1.3.0) (2026-11-19)
+
+
+### Features
+
+* add the backup contracts ([#8](https://github.com/SpeedySpec/speedyspec-cli-contracts/issues/8)) ([c25885a](https://github.com/SpeedySpec/speedyspec-cli-contracts/commit/c25885aa4e3d04d4b06cd9a7ffd4975aa4d918a8))
+
 ## [1.2.0](https://github.com/SpeedySpec/speedyspec-cli-contracts/compare/v1.1.0...v1.2.0) (2026-11-19)
 
 
