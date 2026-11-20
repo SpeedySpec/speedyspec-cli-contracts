@@ -1,6 +1,6 @@
 {
     "name": "speedyspec/cli-contracts",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "description": "Value classes PHP plugins use to extend the speedyspec CLI",
     "type": "library",
     "license": "BSD-3-Clause",
