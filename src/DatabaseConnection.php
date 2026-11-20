@@ -12,7 +12,8 @@ namespace SpeedySpec\Cli\Contracts;
  * and debug output shows it as hidden.
  *
  * A database across a network should be reached encrypted: `tls` is `off`, `required` (encrypted, the certificate
- * unchecked) or `verify` (checked against `caFile` and the host name).
+ * unchecked) or `verify` (the certificate must name the host and be signed by `caFile` or a public certificate
+ * authority, which the CLI's MySQL client always trusts too).
  *
  * @param ?string $caFile
  *   The CA certificate, a path on the CLI's machine; required for `verify`.
