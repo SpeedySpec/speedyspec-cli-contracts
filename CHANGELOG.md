@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/SpeedySpec/speedyspec-cli-contracts/compare/v1.4.0...v1.5.0) (2026-11-20)
+
+
+### Features
+
+* add the workload, maintenance and TLS contracts ([#12](https://github.com/SpeedySpec/speedyspec-cli-contracts/issues/12)) ([80e9cb5](https://github.com/SpeedySpec/speedyspec-cli-contracts/commit/80e9cb595deb3559e2ed426fe0b2370921e7a78a))
+
 ## [1.4.0](https://github.com/SpeedySpec/speedyspec-cli-contracts/compare/v1.3.0...v1.4.0) (2026-11-19)
 
 
