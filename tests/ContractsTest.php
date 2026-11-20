@@ -23,6 +23,8 @@ use SpeedySpec\Cli\Contracts\PrefixedColumn;
 use SpeedySpec\Cli\Contracts\SetupPlan;
 use SpeedySpec\Cli\Contracts\SiteUrl;
 use SpeedySpec\Cli\Contracts\TableColumn;
+use SpeedySpec\Cli\Contracts\Workload;
+use SpeedySpec\Cli\Contracts\MaintenanceFile;
 use SpeedySpec\Cli\Contracts\WaitFor;
 use SpeedySpec\Cli\Contracts\ZipSource;
 
@@ -69,6 +71,8 @@ it('is readonly', function (string $class, array $args, string $property) {
     'BackupSpec' => [BackupSpec::class, [], 'include'],
     'SiteUrl' => [SiteUrl::class, ['options', 'option_name', 'siteurl', 'option_value'], 'table'],
     'PrefixedColumn' => [PrefixedColumn::class, ['usermeta', 'meta_key'], 'column'],
+    'Workload' => [Workload::class, ['Deployment', 'blog', '/var/www/html'], 'name'],
+    'MaintenanceFile' => [MaintenanceFile::class, ['.maintenance', '<?php'], 'path'],
 ]);
 
 it('is final and has no parent or interface', function (string $class) {
@@ -100,6 +104,8 @@ it('is final and has no parent or interface', function (string $class) {
     SiteUrl::class,
     PrefixedColumn::class,
     TableColumn::class,
+    Workload::class,
+    MaintenanceFile::class,
 ]);
 
 it('defaults an app runtime to nothing to load and nothing to set', function () {
@@ -219,4 +225,36 @@ it('names columns whose values keep the old URL on a move', function ()
     expect((new BackupSpec())->keepUrls)->toBe([])
         ->and((new BackupSpec(keepUrls: [$guid]))->keepUrls)->toBe([$guid])
         ->and($guid->column)->toBe('guid');
+});
+
+it('says which workload serves an app on Kubernetes', function ()
+{
+    $workload = new Workload('Deployment', 'blog', '/var/www/html');
+    expect($workload->kind)->toBe('Deployment')
+        ->and($workload->root)->toBe('/var/www/html')
+        ->and($workload->container)->toBeNull()
+        ->and((new Workload('StatefulSet', 'blog', '/srv', 'app'))->container)->toBe('app');
+});
+
+it('names the maintenance file an app shows while its files are swapped', function ()
+{
+    $file = new MaintenanceFile('.maintenance', '<?php $upgrading = time();');
+    expect($file->path)->toBe('.maintenance')
+        ->and($file->contents)->toBe('<?php $upgrading = time();');
+});
+
+it('defaults an app runtime to no workload and no maintenance file', function ()
+{
+    $runtime = new AppRuntime();
+    expect($runtime->workload)->toBeNull()
+        ->and($runtime->maintenance)->toBeNull();
+});
+
+it('defaults a database connection to no TLS', function ()
+{
+    $db = new DatabaseConnection('db', 'blog', 'blog', 'secret');
+    expect($db->tls)->toBe('off')
+        ->and($db->caFile)->toBeNull()
+        ->and((new DatabaseConnection('db', 'blog', 'blog', 'secret', tls: 'verify', caFile: '/etc/ca.pem'))->caFile)
+        ->toBe('/etc/ca.pem');
 });

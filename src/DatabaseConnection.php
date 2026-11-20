@@ -10,6 +10,13 @@ namespace SpeedySpec\Cli\Contracts;
  * Only the app's plugin knows where the app keeps these settings, so it answers with them and the CLI does the
  * database work itself. The password is a secret: the CLI never prints or records it, stack traces leave it out
  * and debug output shows it as hidden.
+ *
+ * A database across a network should be reached encrypted: `tls` is `off`, `required` (encrypted, the certificate
+ * unchecked) or `verify` (the certificate must name the host and be signed by `caFile` or a public certificate
+ * authority, which the CLI's MySQL client always trusts too).
+ *
+ * @param ?string $caFile
+ *   The CA certificate, a path on the CLI's machine; required for `verify`.
  */
 final readonly class DatabaseConnection
 {
@@ -24,6 +31,8 @@ final readonly class DatabaseConnection
         public string $tablePrefix = '',
         public string $charset = 'utf8mb4',
         public string $engine = 'mysql',
+        public string $tls = 'off',
+        public ?string $caFile = null,
     ) {
     }
 
